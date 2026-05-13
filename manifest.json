@@ -1,0 +1,10 @@
+{
+  "name": "Student Success Hub",
+  "short_name": "Student Hub",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb"
+}
+

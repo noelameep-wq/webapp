@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Student Success Hub | Smart Study Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="./manifest.json">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #14b8a6;
+      --accent-dark: #0d9488;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --warning: #f59e0b;
+      --success: #10b981;
+      
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-elevated: #f1f5f9;
+      --text: #0f172a;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+      
+      --sidebar-width: 260px;
+      --header-height: 64px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-elevated: #334155;
+      --text: #f1f5f9;
+      --text-light: #94a3b8;
+      --border: #334155;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .nav-menu {
+      padding: 1rem 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      padding: 0.875rem 1.5rem;
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--text-light);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: var(--surface-elevated);
+      color: var(--primary);
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .nav-item .nav-icon {
+      font-size: 1.25rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      height: var(--header-height);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    #theme-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: none;
+      background: var(--surface-elevated);
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    #theme-toggle:hover {
+      transform: scale(1.05);
+      background: var(--border);
+    }
+
+    /* Pages */
+    .page {
+      display: none;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Cards */
+    .module-card, .module-section {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .module-card {
+      cursor: pointer;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-card h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-card p {
+      color: var(--text-light);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+
+    input, select, button, textarea {
+      font-family: inherit;
+      font-size: 0.9375rem;
+      padding: 0.625rem 0.875rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    button.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    button.accent {
+      background: var(--accent);
+      color: white;
+    }
+
+    button.accent:hover {
+      background: var(--accent-dark);
+    }
+
+    button.danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    button.danger:hover {
+      background: var(--danger-dark);
+    }
+
+    /* Item Lists */
+    .item-list {
+      margin-top: 1.5rem;
+    }
+
+    .item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .item:hover {
+      background: var(--surface-elevated);
+      border-radius: 10px;
+    }
+
+    .item-content {
+      flex: 1;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Priority badges */
+    .priority-high {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .priority-medium {
+      color: var(--warning);
+      font-weight: 600;
+    }
+
+    .priority-low {
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    /* Category Colors */
+    .cat-Math { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .cat-Science { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    .cat-English { background: linear-gradient(135deg, #fed7aa, #fdba74); }
+    .cat-Filipino { background: linear-gradient(135deg, #fecaca, #fca5a5); }
+    .cat-History { background: linear-gradient(135deg, #e0f2fe, #bae6fd); }
+    .cat-Others { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); }
+
+    [data-theme="dark"] .cat-Math { background: #1e3a5f; }
+    [data-theme="dark"] .cat-Science { background: #134e4a; }
+    [data-theme="dark"] .cat-English { background: #78350f; }
+    [data-theme="dark"] .cat-Filipino { background: #991b1b; }
+    [data-theme="dark"] .cat-History { background: #1e3a8a; }
+    [data-theme="dark"] .cat-Others { background: #4c1d95; }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 10px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      transition: width 0.5s ease;
+      border-radius: 10px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-light);
+      font-size: 0.9375rem;
+    }
+
+    .empty-state .emoji {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 0.875rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+      border-left: 4px solid var(--primary);
+      font-weight: 500;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Reflection Entry */
+    .reflection-entry {
+      padding: 1rem;
+      background: var(--surface-elevated);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .reflection-date {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 28px;
+      background: var(--primary);
+      color: white;
+      font-size: 1.5rem;
+      z-index: 101;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .page {
+        padding: 1rem;
+        padding-bottom: 80px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Edit Form */
+    .edit-form {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--surface-elevated);
+      border-radius: 12px;
+    }
+
+    .edit-form.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>🎓 Student Hub</h2>
+      </div>
+      <div class="nav-menu">
+        <button class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-nav="study">
+          <span class="nav-icon">📚</span>
+          <span>Study Planner</span>
+        </button>
+        <button class="nav-item" data-nav="budget">
+          <span class="nav-icon">💰</span>
+          <span>Budget Tracker</span>
+        </button>
+        <button class="nav-item" data-nav="goals">
+          <span class="nav-icon">🎯</span>
+          <span>Weekly Goals</span>
+        </button>
+        <button class="nav-item" data-nav="reflection">
+          <span class="nav-icon">📝</span>
+          <span>Reflection Journal</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="top-bar">
+        <button id="theme-toggle">🌙</button>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="dashboard" class="page active">
+        <h1 style="margin-bottom: 1rem;">Welcome back, Student! 👋</h1>
+        <p style="color: var(--text-light); margin-bottom: 2rem;">Track your progress, stay organized, and achieve your goals.</p>
+        
+        <div class="stats-grid" id="dashboard-stats">
+          <div class="stat-card">
+            <h3 id="stat-tasks">0</h3>
+            <p>Active Tasks</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="stat-goals">0</h3>
+            <p>Goals Completed</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="stat-reflections">0</h3>
+            <p>Journal Entries</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="stat-balance">₱0</h3>
+            <p>Balance</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="module-card" data-nav="study">
+            <div class="emoji" style="font-size: 3rem;">📚</div>
+            <h3>Study Planner</h3>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Manage assignments & deadlines</p>
+          </div>
+          <div class="module-card" data-nav="budget">
+            <div class="emoji" style="font-size: 3rem;">💰</div>
+            <h3>Budget Tracker</h3>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Track income & expenses</p>
+          </div>
+          <div class="module-card" data-nav="goals">
+            <div class="emoji" style="font-size: 3rem;">🎯</div>
+            <h3>Weekly Goals</h3>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Set & achieve your targets</p>
+          </div>
+          <div class="module-card" data-nav="reflection">
+            <div class="emoji" style="font-size: 3rem;">📝</div>
+            <h3>Reflection Journal</h3>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Reflect on your learning</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study Planner -->
+      <div id="study" class="page">
+        <div class="module-section">
+          <h2 style="margin-bottom: 1.5rem;">📚 Study Planner</h2>
+          
+          <form id="task-form">
+            <div class="form-grid">
+              <div>
+                <label>Category</label>
+                <select id="category" required>
+                  <option value="">Select category</option>
+                  <option value="Math">🔢 Math</option>
+                  <option value="Science">🔬 Science</option>
+                  <option value="English">📖 English</option>
+                  <option value="Filipino">🇵🇭 Filipino</option>
+                  <option value="History">🏛️ History</option>
+                  <option value="Others">📌 Others</option>
+                </select>
+              </div>
+              <div>
+                <label>Task Name</label>
+                <input id="task-name" placeholder="e.g., Complete Chapter 5" required>
+              </div>
+              <div>
+                <label>Priority</label>
+                <select id="priority">
+                  <option value="High">🔴 High</option>
+                  <option value="Medium">🟡 Medium</option>
+                  <option value="Low">🟢 Low</option>
+                </select>
+              </div>
+              <div>
+                <label>Deadline</label>
+                <input type="date" id="deadline">
+              </div>
+            </div>
+            <button type="submit" class="primary">➕ Add Task</button>
+          </form>
+
+          <div class="item-list" id="task-list"></div>
+        </div>
+      </div>
+
+      <!-- Budget Tracker -->
+      <div id="budget" class="page">
+        <div class="module-section">
+          <h2 style="margin-bottom: 1.5rem;">💰 Budget Tracker</h2>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3 id="total-income">₱0</h3>
+              <p>Total Income</p>
+            </div>
+            <div class="stat-card">
+              <h3 id="total-expenses">₱0</h3>
+              <p>Total Expenses</p>
+            </div>
+            <div class="stat-card">
+              <h3 id="balance-display">₱0</h3>
+              <p>Balance</p>
+            </div>
+          </div>
+
+          <form id="income-form">
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+              <input type="number" id="income-amt" placeholder="Income amount (₱)" style="flex: 1;" required>
+              <button type="submit" class="primary">+ Add Income</button>
+            </div>
+          </form>
+
+          <form id="expense-form">
+            <div class="form-grid">
+              <input id="exp-desc" placeholder="Description" required>
+              <input type="number" id="exp-amt" placeholder="Amount (₱)" required>
+              <input type="date" id="exp-date">
+            </div>
+            <button type="submit" class="danger">- Add Expense</button>
+          </form>
+
+          <div class="item-list" id="expenses-list"></div>
+        </div>
+      </div>
+
+      <!-- Weekly Goals -->
+      <div id="goals" class="page">
+        <div class="module-section">
+          <h2 style="margin-bottom: 1.5rem;">🎯 Weekly Goals</h2>
+          
+          <form id="goal-form">
+            <div style="display: flex; gap: 1rem;">
+              <input id="goal-text" placeholder="Set a new goal..." style="flex: 1;" required>
+              <button type="submit" class="accent">Add Goal</button>
+            </div>
+          </form>
+
+          <div style="margin: 1.5rem 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <strong>Progress</strong>
+              <span id="goals-progress">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="item-list" id="goals-list"></div>
+        </div>
+      </div>
+
+      <!-- Reflection Journal -->
+      <div id="reflection" class="page">
+        <div class="module-section">
+          <h2 style="margin-bottom: 1.5rem;">📝 Reflection Journal</h2>
+          
+          <form id="reflection-form">
+            <textarea id="reflection-text" rows="5" placeholder="How was your day? What did you learn? Any challenges or achievements?" required style="resize: vertical;"></textarea>
+            <button type="submit" class="primary" style="margin-top: 1rem;">💾 Save Reflection</button>
+          </form>
+
+          <div class="item-list" id="reflections-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+
+
+  <script>
+    // Register service worker for offline caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+
+    // Theme management
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    function setTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Navigation
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
+      document.getElementById(pageId).classList.add('active');
+      
+      // Update active nav item
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-nav') === pageId) {
+          item.classList.add('active');
+        }
+      });
+      
+      // Close mobile sidebar
+      document.getElementById('sidebar').classList.remove('mobile-open');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    document.querySelectorAll('[data-nav]').forEach(el => {
+      el.addEventListener('click', () => {
+        const target = el.getAttribute('data-nav');
+        navigateTo(target);
+      });
+    });
+    
+    // Mobile menu
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    });
+    
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toast.style.borderLeftColor = type === 'error' ? '#dc2626' : '#2563eb';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Data management
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    let goals = JSON.parse(localStorage.getItem('goals')) || [];
+    let reflections = JSON.parse(localStorage.getItem('reflections')) || [];
+    let totalIncome = Number(localStorage.getItem('totalIncome')) || 0;
+    let totalExpenses = Number(localStorage.getItem('totalExpenses')) || 0;
+    let balance = totalIncome - totalExpenses;
+    
+    function saveAll() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      localStorage.setItem('goals', JSON.stringify(goals));
+      localStorage.setItem('reflections', JSON.stringify(reflections));
+      localStorage.setItem('totalIncome', totalIncome);
+      localStorage.setItem('totalExpenses', totalExpenses);
+      updateDashboardStats();
+    }
+    
+    // Study Planner
+    function renderTasks() {
+      const container = document.getElementById('task-list');
+      if (!container) return;
+      
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">📚</div>
+            <p>No tasks yet. Add your first study task!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const catClass = `cat-${task.category}`;
+        const priClass = `priority-${task.priority.toLowerCase()}`;
+        const emoji = { Math: '🔢', Science: '🔬', English: '📖', Filipino: '🇵🇭', History: '🏛️', Others: '📌' }[task.category] || '📌';
+        
+        const div = document.createElement('div');
+        div.className = `item ${catClass}`;
+        div.innerHTML = `
+          <div class="item-content">
+            <div style="font-weight: 600;">${emoji} ${task.category}</div>
+            <div style="margin-top: 0.25rem;">${task.name}</div>
+            <div style="font-size: 0.875rem; margin-top: 0.25rem;">
+              <span class="${priClass}">${task.priority}</span>
+              ${task.deadline ? ` • Due ${task.deadline}` : ''}
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="primary" onclick="editTask(${index})">Edit</button>
+            <button class="danger" onclick="deleteTask(${index})">Delete</button>
+          </div>
+          <div class="edit-form" id="edit-form-${index}">
+            <input type="text" id="edit-name-${index}" value="${task.name.replace(/"/g, '&quot;')}" placeholder="Task name">
+            <select id="edit-priority-${index}">
+              <option value="High" ${task.priority === 'High' ? 'selected' : ''}>High</option>
+              <option value="Medium" ${task.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+              <option value="Low" ${task.priority === 'Low' ? 'selected' : ''}>Low</option>
+            </select>
+            <button class="accent" onclick="saveEdit(${index})">Save</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    window.editTask = function(index) {
+      document.getElementById(`edit-form-${index}`).classList.toggle('active');
+    };
+    
+    window.deleteTask = function(index) {
+      if (confirm('Delete this task?')) {
+        tasks.splice(index, 1);
+        saveAll();
+        renderTasks();
+        showToast('Task deleted');
+      }
+    };
+    
+    window.saveEdit = function(index) {
+      const newName = document.getElementById(`edit-name-${index}`).value;
+      const newPriority = document.getElementById(`edit-priority-${index}`).value;
+      if (newName) {
+        tasks[index].name = newName;
+        tasks[index].priority = newPriority;
+        saveAll();
+        renderTasks();
+        showToast('Task updated');
+      }
+    };
+    
+    document.getElementById('task-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const category = document.getElementById('category').value;
+      const name = document.getElementById('task-name').value.trim();
+      const priority = document.getElementById('priority').value;
+      const deadline = document.getElementById('deadline').value;
+      
+      if (category && name) {
+        tasks.push({ category, name, priority, deadline });
+        saveAll();
+        renderTasks();
+        e.target.reset();
+        showToast('Task added!');
+      }
+    });
+    
+    // Budget Tracker
+    function updateBudgetUI() {
+      const totalIncomeEl = document.getElementById('total-income');
+      const totalExpensesEl = document.getElementById('total-expenses');
+      const balanceEl = document.getElementById('balance-display');
+      
+      if (totalIncomeEl) totalIncomeEl.textContent = `₱${totalIncome.toLocaleString()}`;
+      if (totalExpensesEl) totalExpensesEl.textContent = `₱${totalExpenses.toLocaleString()}`;
+      if (balanceEl) balanceEl.textContent = `₱${(totalIncome - totalExpenses).toLocaleString()}`;
+    }
+    
+    function renderExpenses() {
+      const container = document.getElementById('expenses-list');
+      if (!container) return;
+      
+      if (expenses.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">💰</div>
+            <p>No expenses yet. Add your first expense!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = '';
+      expenses.forEach((expense, index) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div class="item-content">
+            <strong>${expense.desc}</strong>
+            <span style="color: var(--danger);">-₱${expense.amount.toLocaleString()}</span>
+            <div style="font-size: 0.75rem; color: var(--text-light);">${expense.date || 'No date'}</div>
+          </div>
+          <button class="danger" onclick="deleteExpense(${index})">Delete</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    window.deleteExpense = function(index) {
+      if (confirm('Delete this expense?')) {
+        totalExpenses -= expenses[index].amount;
+        expenses.splice(index, 1);
+        saveAll();
+        updateBudgetUI();
+        renderExpenses();
+        showToast('Expense deleted');
+      }
+    };
+    
+    document.getElementById('income-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = Number(document.getElementById('income-amt').value);
+      if (amount > 0) {
+        totalIncome += amount;
+        saveAll();
+        updateBudgetUI();
+        e.target.reset();
+        showToast(`Added ₱${amount.toLocaleString()} income`);
+      }
+    });
+    
+    document.getElementById('expense-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const desc = document.getElementById('exp-desc').value.trim();
+      const amount = Number(document.getElementById('exp-amt').value);
+      const date = document.getElementById('exp-date').value || new Date().toISOString().split('T')[0];
+      
+      if (desc && amount > 0) {
+        totalExpenses += amount;
+        expenses.push({ desc, amount, date });
+        saveAll();
+        updateBudgetUI();
+        renderExpenses();
+        e.target.reset();
+        showToast(`Added expense: ${desc}`);
+      }
+    });
+    
+    // Goals
+    function renderGoals() {
+      const container = document.getElementById('goals-list');
+      if (!container) return;
+      
+      if (goals.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">🎯</div>
+            <p>No goals yet. Set your first goal!</p>
+          </div>
+        `;
+        document.getElementById('goals-progress').textContent = '0%';
+        document.getElementById('progress-fill').style.width = '0%';
+        return;
+      }
+      
+      let completed = 0;
+      container.innerHTML = '';
+      goals.forEach((goal, index) => {
+        if (goal.done) completed++;
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <input type="checkbox" ${goal.done ? 'checked' : ''} onchange="toggleGoal(${index}, this.checked)" style="width: auto;">
+          <div class="item-content" style="${goal.done ? 'text-decoration: line-through; color: var(--text-light);' : ''}">
+            ${goal.text}
+          </div>
+          <button class="danger" onclick="deleteGoal(${index})">Delete</button>
+        `;
+        container.appendChild(div);
+      });
+      
+      const percent = goals.length ? Math.round((completed / goals.length) * 100) : 0;
+      document.getElementById('goals-progress').textContent = `${percent}%`;
+      document.getElementById('progress-fill').style.width = `${percent}%`;
+    }
+    
+    window.toggleGoal = function(index, checked) {
+      goals[index].done = checked;
+      saveAll();
+      renderGoals();
+      showToast(checked ? 'Goal completed! 🎉' : 'Goal unmarked');
+    };
+    
+    window.deleteGoal = function(index) {
+      if (confirm('Delete this goal?')) {
+        goals.splice(index, 1);
+        saveAll();
+        renderGoals();
+        showToast('Goal deleted');
+      }
+    };
+    
+    document.getElementById('goal-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = document.getElementById('goal-text').value.trim();
+      if (text) {
+        goals.push({ text, done: false });
+        saveAll();
+        renderGoals();
+        e.target.reset();
+        showToast('Goal added!');
+      }
+    });
+    
+    // Reflections
+    function renderReflections() {
+      const container = document.getElementById('reflections-list');
+      if (!container) return;
+      
+      if (reflections.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">📝</div>
+            <p>No reflections yet. Start journaling!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = '';
+      [...reflections].reverse().forEach(reflection => {
+        const div = document.createElement('div');
+        div.className = 'reflection-entry';
+        div.innerHTML = `
+          <div class="reflection-date">${reflection.date}</div>
+          <div>${reflection.text.replace(/\n/g, '<br>')}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    document.getElementById('reflection-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = document.getElementById('reflection-text').value.trim();
+      if (text) {
+        const date = new Date().toLocaleString('en-PH', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        reflections.push({ date, text });
+        saveAll();
+        renderReflections();
+        e.target.reset();
+        showToast('Reflection saved!');
+      }
+    });
+    
+    // Dashboard Stats
+    function updateDashboardStats() {
+      const completedGoals = goals.filter(g => g.done).length;
+      const statTasks = document.getElementById('stat-tasks');
+      const statGoals = document.getElementById('stat-goals');
+      const statReflections = document.getElementById('stat-reflections');
+      const statBalance = document.getElementById('stat-balance');
+      
+      if (statTasks) statTasks.textContent = tasks.length;
+      if (statGoals) statGoals.textContent = completedGoals;
+      if (statReflections) statReflections.textContent = reflections.length;
+      if (statBalance) statBalance.textContent = `₱${(totalIncome - totalExpenses).toLocaleString()}`;
+    }
+    
+    // Initialize
+    function init() {
+      updateBudgetUI();
+      renderTasks();
+      renderExpenses();
+      renderGoals();
+      renderReflections();
+      updateDashboardStats();
+    }
+    
+    init();
+  </script>
+</body>
+</html>
